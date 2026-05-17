@@ -19,3 +19,10 @@ test('filters detected commands by kind', async () => {
 
   assert.deepEqual(commands.map((command) => command.label), ['smoke']);
 });
+
+test('blocks unsafe package script bodies', async () => {
+  const cwd = resolve('fixtures/npm-unsafe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+  assert.equal(commands.find((command) => command.label === 'fetch')?.safety, 'blocked');
+});
