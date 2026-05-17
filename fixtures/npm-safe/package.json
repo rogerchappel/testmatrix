@@ -1,0 +1,12 @@
+{
+  "name": "fixture-npm-safe",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node -e \"console.log('fixture tests ok')\"",
+    "check": "node -e \"console.log('fixture checks ok')\"",
+    "build": "node -e \"console.log('fixture build ok')\"",
+    "smoke": "node -e \"console.log('fixture smoke ok')\"",
+    "deploy": "node -e \"console.log('should not run by default')\""
+  }
+}
