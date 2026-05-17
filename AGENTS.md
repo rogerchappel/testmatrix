@@ -5,10 +5,10 @@ This file defines how AI agents and human maintainers should work in `testmatrix
 ## Project Context
 
 - Project: `testmatrix`
-- Repository: ``
-- Primary maintainer: ``
-- Default branch: ``
-- Package manager: ``
+- Repository: `rogerchappel/testmatrix`
+- Primary maintainer: `Roger Chappel`
+- Default branch: `main`
+- Package manager: `npm`
 - Primary verification command: `bash scripts/validate.sh`
 
 ## Core Principle
@@ -172,5 +172,4 @@ Stop and ask before touching:
 Never commit secrets. Never mutate production data unless explicitly instructed.
 
 ## Repository-Specific Notes
-
 
