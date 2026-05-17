@@ -16,7 +16,7 @@
   },
   "files": [
     "bin",
-    "dist",
+    "dist/src",
     "README.md",
     "docs"
   ],
