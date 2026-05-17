@@ -1,0 +1,26 @@
+{
+  "name": "testmatrix",
+  "version": 1,
+  "purpose": "Detect, classify, and run safe local verification commands with a result matrix.",
+  "defaultCommands": [
+    "npm test",
+    "npm run check",
+    "npm run build",
+    "npm run smoke",
+    "bash scripts/validate.sh"
+  ],
+  "cli": {
+    "entrypoint": "node ./bin/testmatrix.js",
+    "dryRun": "node ./bin/testmatrix.js --dry-run",
+    "jsonSmoke": "node ./bin/testmatrix.js --cwd fixtures/npm-safe --json --output .testmatrix/results.json"
+  },
+  "safety": {
+    "default": "skip blocked commands",
+    "override": "--include-unsafe",
+    "blockedSignals": ["publish", "deploy", "release", "migration", "production", "curl", "wget", "ssh", "git push"]
+  },
+  "artifacts": {
+    "resultMatrix": ".testmatrix/results.json",
+    "committed": false
+  }
+}
