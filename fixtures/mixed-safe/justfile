@@ -1,0 +1,2 @@
+smoke:
+  node -e "console.log('just smoke ok')"

@@ -1,0 +1,6 @@
+[project]
+name = "fixture-mixed-safe"
+version = "0.0.0"
+
+[tool.testmatrix.scripts]
+check = "python -c \"print('python check ok')\""
