@@ -1,0 +1,9 @@
+{
+  "name": "fixture-npm-unsafe",
+  "private": true,
+  "scripts": {
+    "test": "node -e \"console.log('ok')\"",
+    "publish": "npm publish",
+    "release": "gh release create v0.0.0"
+  }
+}
