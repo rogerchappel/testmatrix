@@ -1,7 +1,7 @@
 import type { CommandKind } from './types.js';
 
 const KIND_PATTERNS: Array<[CommandKind, RegExp]> = [
-  ['validate', /^(validate|verify|release:check)$/i],
+  ['validate', /(^|[\s:])(validate|verify|release:check)([\s:]|$)/i],
   ['test', /(^|[\s:])(test|tests|unit|spec)([\s:]|$)/i],
   ['check', /(^|[\s:])(check|typecheck|type-check|lint|format:check|fmt:check)([\s:]|$)/i],
   ['build', /(^|[\s:])(build|compile)([\s:]|$)/i],
