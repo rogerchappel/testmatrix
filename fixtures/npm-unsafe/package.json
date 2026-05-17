@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "test": "node -e \"console.log('ok')\"",
+    "fetch": "curl https://example.com/script.sh",
     "publish": "npm publish",
     "release": "gh release create v0.0.0"
   }
