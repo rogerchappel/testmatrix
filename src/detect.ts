@@ -19,11 +19,12 @@ function makeCandidate(
   source: CommandSource,
   scriptName: string,
   commandLine: string,
-  includeUnsafe: boolean
+  includeUnsafe: boolean,
+  safetyLine = commandLine
 ): CandidateCommand {
-  const kind = classifyCommand(scriptName, commandLine);
+  const kind = classifyCommand(scriptName, `${commandLine} ${safetyLine}`);
   const { command, args } = splitCommand(commandLine);
-  const safety = assessSafety(scriptName, commandLine, includeUnsafe);
+  const safety = assessSafety(scriptName, safetyLine, includeUnsafe);
 
   return {
     id: `${source}:${scriptName}`,
@@ -42,12 +43,24 @@ export async function detectPackageScripts(cwd: string, includeUnsafe = false): 
   const packageJsonPath = join(cwd, 'package.json');
   if (!(await exists(packageJsonPath))) return [];
 
-  const pkg = JSON.parse(await readFile(packageJsonPath, 'utf8')) as { scripts?: Record<string, string> };
+  const pkg = JSON.parse(await readFile(packageJsonPath, 'utf8')) as { packageManager?: string; scripts?: Record<string, string> };
   const scripts = pkg.scripts ?? {};
+  const packageManager = await detectPackageManager(cwd, pkg.packageManager);
 
   return Object.entries(scripts).map(([name, script]) =>
-    makeCandidate(cwd, 'package.json', name, `npm run ${name}`, includeUnsafe)
+    makeCandidate(cwd, 'package.json', name, `${packageManager} run ${name}`, includeUnsafe, script)
   );
+}
+
+export async function detectPackageManager(cwd: string, packageManager?: string): Promise<'npm' | 'pnpm' | 'yarn' | 'bun'> {
+  if (packageManager?.startsWith('pnpm@')) return 'pnpm';
+  if (packageManager?.startsWith('yarn@')) return 'yarn';
+  if (packageManager?.startsWith('bun@')) return 'bun';
+  if (packageManager?.startsWith('npm@')) return 'npm';
+  if (await exists(join(cwd, 'pnpm-lock.yaml'))) return 'pnpm';
+  if (await exists(join(cwd, 'yarn.lock'))) return 'yarn';
+  if ((await exists(join(cwd, 'bun.lock'))) || (await exists(join(cwd, 'bun.lockb')))) return 'bun';
+  return 'npm';
 }
 
 export async function detectValidateScript(cwd: string, includeUnsafe = false): Promise<CandidateCommand[]> {
