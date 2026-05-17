@@ -26,3 +26,15 @@ test('blocks unsafe package script bodies', async () => {
 
   assert.equal(commands.find((command) => command.label === 'fetch')?.safety, 'blocked');
 });
+
+test('detects mixed tool fixtures without running them', async () => {
+  const cwd = resolve('fixtures/mixed-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const ids = commands.map((command) => command.id).sort();
+
+  assert.ok(ids.includes('Makefile:test'));
+  assert.ok(ids.includes('Makefile:build'));
+  assert.ok(ids.includes('justfile:smoke'));
+  assert.ok(ids.includes('pyproject.toml:check'));
+  assert.ok(ids.includes('package.json:typecheck'));
+});
