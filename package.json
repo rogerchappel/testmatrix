@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test dist/tests/*.test.js",
+    "test": "npm run build && node --test dist/tests/*.test.js",
     "smoke": "npm run build && node ./bin/testmatrix.js --cwd fixtures/npm-safe --json --output .testmatrix/results.json",
     "package:smoke": "npm pack --dry-run",
     "release:check": "npm test && npm run package:smoke"
