@@ -18,7 +18,9 @@
     "bin",
     "dist/src",
     "README.md",
-    "docs"
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -26,7 +28,7 @@
     "test": "npm run build && node --test dist/tests/*.test.js",
     "smoke": "npm run build && node ./bin/testmatrix.js --cwd fixtures/npm-safe --json --output .testmatrix/results.json",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm test && npm run package:smoke"
+    "release:check": "npm test && npm run check && npm run build && npm run smoke && npm run package:smoke"
   },
   "keywords": [
     "cli",
