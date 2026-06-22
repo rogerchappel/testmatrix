@@ -6,17 +6,17 @@
   "bin": {
     "testmatrix": "./bin/testmatrix.js"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     }
   },
   "files": [
     "bin",
-    "dist/src",
+    "dist",
     "README.md",
     "LICENSE",
     "SECURITY.md",
@@ -28,7 +28,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/tests/*.test.js",
     "smoke": "npm run build && node ./bin/testmatrix.js --cwd fixtures/npm-safe --json --output .testmatrix/results.json",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.mjs",
     "release:check": "npm test && npm run check && npm run build && npm run smoke && npm run package:smoke"
   },
   "keywords": [
