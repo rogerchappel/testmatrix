@@ -16,7 +16,7 @@
   },
   "files": [
     "bin",
-    "dist/src",
+    "dist",
     "README.md",
     "LICENSE",
     "SECURITY.md",
