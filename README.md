@@ -54,10 +54,13 @@ npm test
 npm run check
 npm run build
 npm run smoke
+npm run release:check
 bash scripts/validate.sh
 ```
 
 The smoke script builds the CLI and runs it against `fixtures/npm-safe`, writing `fixtures/npm-safe/.testmatrix/results.json`.
+`release:check` chains the local verification commands with the package dry-run
+so release-facing changes exercise both behavior and package contents.
 
 ## Matrix Shape
 
