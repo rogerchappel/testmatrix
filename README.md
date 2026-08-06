@@ -41,6 +41,14 @@ Only run one class of command:
 node ./bin/testmatrix.js --only test,check
 ```
 
+Options that take a value (`--cwd`, `--output`, `--only`, and `--timeout`)
+must be followed by that value. A missing value or another option in its place
+exits nonzero with an option-specific error, for example:
+
+```text
+testmatrix: --output requires a value
+```
+
 Include blocked commands only when you have reviewed them:
 
 ```bash

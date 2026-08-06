@@ -8,6 +8,14 @@ import type { CliOptions, CommandKind } from './types.js';
 
 const VALID_KINDS = new Set<CommandKind>(['test', 'check', 'build', 'smoke', 'validate', 'unknown']);
 
+function requireOptionValue(args: string[], index: number, option: string): string {
+  const value = args[index + 1];
+  if (!value || value.startsWith('-')) {
+    throw new Error(`${option} requires a value`);
+  }
+  return value;
+}
+
 function usage(): string {
   return `Usage: testmatrix [options]
 
@@ -48,20 +56,24 @@ export function parseArgs(args: string[], envCwd = process.cwd()): CliOptions & 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     switch (arg) {
-      case '--cwd':
-        options.cwd = resolve(args[++index] ?? '');
+      case '--cwd': {
+        options.cwd = resolve(requireOptionValue(args, index, arg));
+        index += 1;
         break;
+      }
       case '--dry-run':
         options.dryRun = true;
         break;
       case '--json':
         options.json = true;
         break;
-      case '--output':
-        options.output = args[++index];
+      case '--output': {
+        options.output = requireOptionValue(args, index, arg);
+        index += 1;
         break;
-      case '--only':
-        options.onlyKinds = (args[++index] ?? '')
+      }
+      case '--only': {
+        options.onlyKinds = requireOptionValue(args, index, arg)
           .split(',')
           .filter(Boolean)
           .map((kind) => {
@@ -70,16 +82,19 @@ export function parseArgs(args: string[], envCwd = process.cwd()): CliOptions & 
             }
             return kind as CommandKind;
           });
+        index += 1;
         break;
+      }
       case '--include-unsafe':
         options.includeUnsafe = true;
         break;
       case '--timeout': {
-        const seconds = Number(args[++index] ?? '');
+        const seconds = Number(requireOptionValue(args, index, arg));
         if (!Number.isFinite(seconds) || seconds <= 0) {
           throw new Error('--timeout must be a positive number of seconds');
         }
         options.timeoutMs = seconds * 1000;
+        index += 1;
         break;
       }
       case '-h':
