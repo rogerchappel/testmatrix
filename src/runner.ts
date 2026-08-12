@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import type { CandidateCommand, RunResult } from './types.js';
 
+const TERMINATION_GRACE_MS = 250;
+
 function truncate(value: string, maxLength = 12_000): string {
   return value.length > maxLength ? `${value.slice(0, maxLength)}\n[truncated]` : value;
 }
@@ -23,16 +25,39 @@ export async function runCommand(command: CandidateCommand, timeoutMs: number, d
     const child = spawn(command.command, command.args, {
       cwd: command.cwd,
       env: { ...process.env, CI: process.env.CI ?? '1' },
-      shell: false
+      shell: false,
+      detached: process.platform !== 'win32'
     });
 
     let stdout = '';
     let stderr = '';
     let timedOut = false;
+    let escalation: NodeJS.Timeout | undefined;
+
+    const killProcessTree = (signal: NodeJS.Signals): void => {
+      if (child.pid === undefined) return;
+
+      if (process.platform === 'win32') {
+        spawn('taskkill', ['/pid', String(child.pid), '/t', '/f'], {
+          stdio: 'ignore',
+          windowsHide: true
+        }).unref();
+        return;
+      }
+
+      try {
+        process.kill(-child.pid, signal);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
+      }
+    };
 
     const timeout = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGTERM');
+      killProcessTree('SIGTERM');
+      if (process.platform !== 'win32') {
+        escalation = setTimeout(() => killProcessTree('SIGKILL'), TERMINATION_GRACE_MS);
+      }
     }, timeoutMs);
 
     child.stdout?.on('data', (chunk: Buffer) => {
@@ -45,6 +70,7 @@ export async function runCommand(command: CandidateCommand, timeoutMs: number, d
 
     child.on('error', (error) => {
       clearTimeout(timeout);
+      if (escalation) clearTimeout(escalation);
       resolve({
         ...command,
         status: 'failed',
@@ -57,6 +83,7 @@ export async function runCommand(command: CandidateCommand, timeoutMs: number, d
 
     child.on('close', (code) => {
       clearTimeout(timeout);
+      if (escalation) clearTimeout(escalation);
       resolve({
         ...command,
         status: timedOut ? 'timed-out' : code === 0 ? 'passed' : 'failed',
