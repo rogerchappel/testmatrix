@@ -49,6 +49,11 @@ exits nonzero with an option-specific error, for example:
 testmatrix: --output requires a value
 ```
 
+`--timeout` applies to the command's process tree. On POSIX systems, testmatrix sends
+`SIGTERM` to the command's process group and escalates to `SIGKILL` after a 250 ms
+grace period. On Windows, it uses `taskkill /T /F` to terminate the tree immediately.
+Commands that detach themselves into a different process group are outside this guarantee.
+
 Include blocked commands only when you have reviewed them:
 
 ```bash

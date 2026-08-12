@@ -28,7 +28,7 @@ Options:
   --output <path>          Write JSON matrix to a file
   --only <kind[,kind]>     Limit to test,check,build,smoke,validate,unknown
   --include-unsafe         Run commands blocked by the default safety policy
-  --timeout <seconds>      Per-command timeout (default: 120)
+  --timeout <seconds>      Per-command process-tree timeout (default: 120)
   -h, --help               Show help
   --version                Show version
 `;
