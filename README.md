@@ -19,6 +19,17 @@ node ./bin/testmatrix.js --cwd fixtures/npm-safe
 
 Commands are classified as `test`, `check`, `build`, `smoke`, `validate`, or `unknown`.
 
+`[tool.testmatrix.scripts]` accepts single-line TOML basic strings. Arguments may
+be grouped with single or double quotes; use TOML escapes for quotes that belong
+inside a grouped argument. For example:
+
+```toml
+[tool.testmatrix.scripts]
+quoted = "node -e \"console.log(\\\"hello world\\\")\""
+```
+
+This runs `node` with the two arguments `-e` and `console.log("hello world")`.
+
 ## Safety Defaults
 
 By default, TestMatrix skips command names and command bodies that look like deploys, publishes, releases, migrations, production work, or network shelling. Skipped commands still appear in the matrix so the omission is visible.
