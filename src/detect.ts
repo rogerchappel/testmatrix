@@ -91,9 +91,10 @@ export async function detectPyproject(cwd: string, includeUnsafe = false): Promi
   const text = await readFile(pyprojectPath, 'utf8');
   const commands: CandidateCommand[] = [];
 
-  const toolScripts = text.match(/^\[tool\.testmatrix\.scripts\]\s*\n([\s\S]*?)(?:^\[|$)/m)?.[1] ?? '';
-  for (const match of toolScripts.matchAll(/^([A-Za-z0-9_.:-]+)\s*=\s*"([^"]+)"/gm)) {
-    commands.push(makeCandidate(cwd, 'pyproject.toml', match[1], match[2], includeUnsafe));
+  const toolScripts = text.match(/^\[tool\.testmatrix\.scripts\]\s*\n([\s\S]*?)(?:^\[|(?![\s\S]))/m)?.[1] ?? '';
+  for (const match of toolScripts.matchAll(/^([A-Za-z0-9_.:-]+)\s*=\s*("(?:\\.|[^"\\])*")\s*(?:#.*)?$/gm)) {
+    const commandLine = JSON.parse(match[2]) as string;
+    commands.push(makeCandidate(cwd, 'pyproject.toml', match[1], commandLine, includeUnsafe));
   }
 
   if (/^\[tool\.pytest\.ini_options\]/m.test(text) || /^\[tool\.pytest\]/m.test(text)) {

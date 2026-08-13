@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { detectCommands } from '../src/detect.js';
+import { runCommand } from '../src/runner.js';
 
 test('detects and classifies npm fixture commands', async () => {
   const cwd = resolve('fixtures/npm-safe');
@@ -37,4 +38,26 @@ test('detects mixed tool fixtures without running them', async () => {
   assert.ok(ids.includes('justfile:smoke'));
   assert.ok(ids.includes('pyproject.toml:check'));
   assert.ok(ids.includes('package.json:typecheck'));
+});
+
+test('decodes, tokenizes, and safely runs quoted pyproject commands', async () => {
+  const cwd = resolve('fixtures/quoted-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const quoted = commands.find((command) => command.label === 'quoted');
+
+  assert.ok(quoted);
+  assert.equal(quoted.command, 'node');
+  assert.deepEqual(quoted.args, ['-e', 'console.log("hello world")']);
+  assert.equal(quoted.safety, 'safe');
+
+  const result = await runCommand(quoted, 5_000, false);
+  assert.equal(result.status, 'passed');
+  assert.equal(result.stdout, 'hello world\n');
+});
+
+test('assesses safety against the full decoded pyproject command', async () => {
+  const cwd = resolve('fixtures/quoted-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+  assert.equal(commands.find((command) => command.label === 'unsafe')?.safety, 'blocked');
 });
