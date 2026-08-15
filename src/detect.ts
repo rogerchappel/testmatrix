@@ -47,7 +47,10 @@ export async function detectPackageScripts(cwd: string, includeUnsafe = false): 
   const scripts = pkg.scripts ?? {};
   const packageManager = await detectPackageManager(cwd, pkg.packageManager);
 
-  return Object.entries(scripts).map(([name, script]) =>
+  return Object.entries(scripts).filter(([name]) => {
+    const parentName = name.match(/^(?:pre|post)(.+)$/)?.[1];
+    return !parentName || !(parentName in scripts);
+  }).map(([name, script]) =>
     makeCandidate(cwd, 'package.json', name, `${packageManager} run ${name}`, includeUnsafe, script)
   );
 }
@@ -73,7 +76,9 @@ export async function detectMakefile(cwd: string, includeUnsafe = false): Promis
   const makefilePath = join(cwd, 'Makefile');
   if (!(await exists(makefilePath))) return [];
   const text = await readFile(makefilePath, 'utf8');
-  const targets = [...text.matchAll(/^([A-Za-z0-9_.:-]+):(?:\s|$)/gm)].map((match) => match[1]);
+  const targets = [...text.matchAll(/^([A-Za-z0-9_.:-]+):(?:\s|$)/gm)]
+    .map((match) => match[1])
+    .filter((target) => !target.startsWith('.'));
   return targets.map((target) => makeCandidate(cwd, 'Makefile', target, `make ${target}`, includeUnsafe));
 }
 
