@@ -1,0 +1,9 @@
+{
+  "name": "fixture-lifecycle-safe",
+  "private": true,
+  "scripts": {
+    "pretest": "node -e \"console.log('test setup')\"",
+    "test": "node -e \"console.log('tests ok')\"",
+    "pretest-report": "node -e \"console.log('standalone report')\""
+  }
+}
