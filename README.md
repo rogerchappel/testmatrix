@@ -19,6 +19,12 @@ node ./bin/testmatrix.js --cwd fixtures/npm-safe
 
 Commands are classified as `test`, `check`, `build`, `smoke`, `validate`, or `unknown`.
 
+Package scripts named `pre<name>` or `post<name>` are omitted when `<name>` is
+also present, because the package manager runs those lifecycle hooks automatically
+with their parent script. Similar standalone names are still detected when no
+matching parent exists. Makefile metadata and special targets whose names begin
+with `.`, such as `.PHONY`, are not treated as runnable commands.
+
 `[tool.testmatrix.scripts]` accepts single-line TOML basic strings. Arguments may
 be grouped with single or double quotes; use TOML escapes for quotes that belong
 inside a grouped argument. For example:

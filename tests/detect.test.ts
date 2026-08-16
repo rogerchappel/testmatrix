@@ -40,6 +40,24 @@ test('detects mixed tool fixtures without running them', async () => {
   assert.ok(ids.includes('package.json:typecheck'));
 });
 
+test('omits npm lifecycle hooks that their parent script runs automatically', async () => {
+  const cwd = resolve('fixtures/lifecycle-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+  assert.deepEqual(commands.filter((command) => command.source === 'package.json').map((command) => command.id).sort(), [
+    'package.json:pretest-report',
+    'package.json:test'
+  ]);
+});
+
+test('omits Make special targets from runnable candidates', async () => {
+  const cwd = resolve('fixtures/lifecycle-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+  assert.ok(commands.some((command) => command.id === 'Makefile:test'));
+  assert.ok(!commands.some((command) => command.id === 'Makefile:.PHONY'));
+});
+
 test('decodes, tokenizes, and safely runs quoted pyproject commands', async () => {
   const cwd = resolve('fixtures/quoted-safe');
   const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
