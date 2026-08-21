@@ -31,9 +31,18 @@ export function splitCommand(commandLine: string): { command: string; args: stri
     }
   }
 
-  if (escaped) token += '\\';
+  if (escaped) {
+    throw new Error('command ends with an unterminated escape');
+  }
+  if (quote) {
+    throw new Error(`command has an unterminated ${quote === "'" ? 'single' : 'double'} quote`);
+  }
   if (started) tokens.push(token);
 
-  const [command = '', ...args] = tokens;
+  if (tokens.length === 0 || tokens[0] === '') {
+    throw new Error('command is empty');
+  }
+
+  const [command, ...args] = tokens;
   return { command, args };
 }
