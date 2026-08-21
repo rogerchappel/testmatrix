@@ -23,7 +23,14 @@ function makeCandidate(
   safetyLine = commandLine
 ): CandidateCommand {
   const kind = classifyCommand(scriptName, `${commandLine} ${safetyLine}`);
-  const { command, args } = splitCommand(commandLine);
+  let command: string;
+  let args: string[];
+  try {
+    ({ command, args } = splitCommand(commandLine));
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`invalid ${source} command "${scriptName}": ${reason}`);
+  }
   const safety = assessSafety(scriptName, safetyLine, includeUnsafe);
 
   return {

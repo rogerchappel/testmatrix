@@ -36,6 +36,12 @@ quoted = "node -e \"console.log(\\\"hello world\\\")\""
 
 This runs `node` with the two arguments `-e` and `console.log("hello world")`.
 
+After TOML decoding, each command must contain a non-empty executable name,
+balanced single or double quotes, and a character after every unquoted or
+double-quoted backslash. TestMatrix rejects malformed entries during detection,
+before any command is spawned, and identifies the source and script name in its
+diagnostic.
+
 ## Safety Defaults
 
 By default, TestMatrix skips command names and command bodies that look like deploys, publishes, releases, migrations, production work, or network shelling. Skipped commands still appear in the matrix so the omission is visible.

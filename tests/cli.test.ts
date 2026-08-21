@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { parseArgs } from '../src/cli.js';
 
 test('parses core cli options', () => {
@@ -55,4 +57,27 @@ for (const option of ['--cwd', '--output', '--only', '--timeout']) {
 
 test('rejects unknown kinds', () => {
   assert.throws(() => parseArgs(['--only', 'deploy']), /unknown command kind/);
+});
+
+test('reports malformed pyproject commands without spawning them', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'testmatrix-cli-malformed-'));
+  const marker = join(cwd, 'spawned');
+  try {
+    writeFileSync(join(cwd, 'pyproject.toml'), [
+      '[tool.testmatrix.scripts]',
+      `broken = "node -e \'require(\\\"node:fs\\\").writeFileSync(\\\"${marker}\\\", \\\"yes\\\")"`
+    ].join('\n'));
+
+    const result = spawnSync(process.execPath, ['./bin/testmatrix.js', '--cwd', cwd], {
+      cwd: resolve('.'),
+      encoding: 'utf8'
+    });
+
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /^testmatrix: invalid pyproject\.toml command "broken": command has an unterminated single quote\n$/);
+    assert.equal(existsSync(marker), false);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
 });
