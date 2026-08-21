@@ -15,3 +15,26 @@ test('preserves empty and escaped unquoted arguments', () => {
     args: ['', 'two words']
   });
 });
+
+test('rejects empty commands', () => {
+  assert.throws(() => splitCommand('   \t'), /command is empty/);
+});
+
+test('rejects unmatched single quotes', () => {
+  assert.throws(() => splitCommand("node -e 'console.log(1)"), /unterminated single quote/);
+});
+
+test('rejects unmatched double quotes', () => {
+  assert.throws(() => splitCommand('node -e "console.log(1)'), /unterminated double quote/);
+});
+
+test('rejects an unterminated escape', () => {
+  assert.throws(() => splitCommand('node script.js\\'), /unterminated escape/);
+});
+
+test('accepts closed quotes and escaped spaces', () => {
+  assert.deepEqual(splitCommand("node -e 'console.log(1)' two\\ words"), {
+    command: 'node',
+    args: ['-e', 'console.log(1)', 'two words']
+  });
+});

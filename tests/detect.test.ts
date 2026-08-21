@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { detectCommands } from '../src/detect.js';
 import { runCommand } from '../src/runner.js';
 
@@ -78,4 +80,21 @@ test('assesses safety against the full decoded pyproject command', async () => {
   const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
 
   assert.equal(commands.find((command) => command.label === 'unsafe')?.safety, 'blocked');
+});
+
+test('rejects malformed pyproject commands before they can be run', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'testmatrix-malformed-'));
+  try {
+    await writeFile(join(cwd, 'pyproject.toml'), [
+      '[tool.testmatrix.scripts]',
+      'broken = "node -e \'console.log(1)"'
+    ].join('\n'));
+
+    await assert.rejects(
+      detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] }),
+      /invalid pyproject\.toml command "broken": command has an unterminated single quote/
+    );
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
 });
