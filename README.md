@@ -23,7 +23,9 @@ Package scripts named `pre<name>` or `post<name>` are omitted when `<name>` is
 also present, because the package manager runs those lifecycle hooks automatically
 with their parent script. Similar standalone names are still detected when no
 matching parent exists. Makefile metadata and special targets whose names begin
-with `.`, such as `.PHONY`, are not treated as runnable commands.
+with `.`, such as `.PHONY`, are not treated as runnable commands. Ordinary
+multi-target rules and double-colon rules are detected under each declared
+target name.
 
 `[tool.testmatrix.scripts]` accepts single-line TOML basic strings. Arguments may
 be grouped with single or double quotes; use TOML escapes for quotes that belong

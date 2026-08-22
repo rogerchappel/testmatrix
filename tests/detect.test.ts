@@ -37,9 +37,29 @@ test('detects mixed tool fixtures without running them', async () => {
 
   assert.ok(ids.includes('Makefile:test'));
   assert.ok(ids.includes('Makefile:build'));
+  assert.ok(ids.includes('Makefile:alpha'));
+  assert.ok(ids.includes('Makefile:beta'));
+  assert.ok(ids.includes('Makefile:gamma'));
   assert.ok(ids.includes('justfile:smoke'));
   assert.ok(ids.includes('pyproject.toml:check'));
   assert.ok(ids.includes('package.json:typecheck'));
+});
+
+test('detects each ordinary multi-target and double-colon Make rule target', async () => {
+  const cwd = resolve('fixtures/mixed-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const makeCommands = commands.filter((command) => command.source === 'Makefile');
+
+  assert.deepEqual(
+    makeCommands.map(({ id, args }) => ({ id, args })).sort((a, b) => a.id.localeCompare(b.id)),
+    [
+      { id: 'Makefile:alpha', args: ['alpha'] },
+      { id: 'Makefile:beta', args: ['beta'] },
+      { id: 'Makefile:build', args: ['build'] },
+      { id: 'Makefile:gamma', args: ['gamma'] },
+      { id: 'Makefile:test', args: ['test'] }
+    ]
+  );
 });
 
 test('omits npm lifecycle hooks that their parent script runs automatically', async () => {
