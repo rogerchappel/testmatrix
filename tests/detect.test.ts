@@ -72,6 +72,38 @@ test('omits npm lifecycle hooks that their parent script runs automatically', as
   ]);
 });
 
+test('preserves and runs nontrivial package script names as exact arguments', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'testmatrix-script-names-'));
+  const scripts = {
+    'test unit': 'node -e "console.log(\'space\')"',
+    'check"quoted': 'node -e "console.log(\'quote\')"',
+    'smoke\\path': 'node -e "console.log(\'backslash\')"'
+  };
+
+  try {
+    await writeFile(join(cwd, 'package.json'), JSON.stringify({ scripts }));
+    const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+    assert.deepEqual(
+      commands.map(({ scriptName, command, args, safety }) => ({ scriptName: scriptName!, command, args, safety }))
+        .sort((a, b) => a.scriptName.localeCompare(b.scriptName)),
+      Object.keys(scripts).sort().map((scriptName) => ({
+        scriptName,
+        command: 'npm',
+        args: ['run', scriptName],
+        safety: 'safe'
+      }))
+    );
+
+    for (const candidate of commands) {
+      const result = await runCommand(candidate, 5_000, false);
+      assert.equal(result.status, 'passed', `${candidate.scriptName}: ${result.stderr}`);
+    }
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+});
+
 test('omits Make special targets from runnable candidates', async () => {
   const cwd = resolve('fixtures/lifecycle-safe');
   const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
