@@ -46,6 +46,29 @@ function makeCandidate(
   };
 }
 
+function makePackageCandidate(
+  cwd: string,
+  packageManager: 'npm' | 'pnpm' | 'yarn' | 'bun',
+  scriptName: string,
+  script: string,
+  includeUnsafe: boolean
+): CandidateCommand {
+  const kind = classifyCommand(scriptName, `${packageManager} run ${scriptName} ${script}`);
+  const safety = assessSafety(scriptName, script, includeUnsafe);
+
+  return {
+    id: `package.json:${scriptName}`,
+    label: scriptName,
+    command: packageManager,
+    args: ['run', scriptName],
+    cwd,
+    source: 'package.json',
+    scriptName,
+    kind,
+    ...safety
+  };
+}
+
 export async function detectPackageScripts(cwd: string, includeUnsafe = false): Promise<CandidateCommand[]> {
   const packageJsonPath = join(cwd, 'package.json');
   if (!(await exists(packageJsonPath))) return [];
@@ -58,7 +81,7 @@ export async function detectPackageScripts(cwd: string, includeUnsafe = false): 
     const parentName = name.match(/^(?:pre|post)(.+)$/)?.[1];
     return !parentName || !(parentName in scripts);
   }).map(([name, script]) =>
-    makeCandidate(cwd, 'package.json', name, `${packageManager} run ${name}`, includeUnsafe, script)
+    makePackageCandidate(cwd, packageManager, name, script, includeUnsafe)
   );
 }
 
