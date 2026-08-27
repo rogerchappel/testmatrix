@@ -27,6 +27,11 @@ with `.`, such as `.PHONY`, are not treated as runnable commands. Ordinary
 multi-target rules and double-colon rules are detected under each declared
 target name.
 
+Justfile recipes with parameters are detected by recipe name. Parameters with
+defaults do not become command arguments during detection, so a declaration
+such as `test filter="":` produces the safe candidate `just test`; callers can
+still invoke the recipe separately with an explicit parameter value.
+
 `[tool.testmatrix.scripts]` accepts single-line TOML basic strings. Arguments may
 be grouped with single or double quotes; use TOML escapes for quotes that belong
 inside a grouped argument. For example:
