@@ -60,7 +60,7 @@ test('detects just recipes with defaulted parameters', async () => {
     scriptName: 'test',
     kind: 'test',
     safety: 'safe',
-    reason: 'local verification command'
+    reason: 'safe local verification command'
   });
 });
 
