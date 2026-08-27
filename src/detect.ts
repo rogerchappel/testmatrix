@@ -116,7 +116,7 @@ export async function detectJustfile(cwd: string, includeUnsafe = false): Promis
   const justfilePath = join(cwd, 'justfile');
   if (!(await exists(justfilePath))) return [];
   const text = await readFile(justfilePath, 'utf8');
-  const recipes = [...text.matchAll(/^([A-Za-z0-9_.:-]+):(?:\s|$)/gm)].map((match) => match[1]);
+  const recipes = [...text.matchAll(/^([A-Za-z0-9_.-]+)(?:[ \t]+[^:\r\n]+)?:(?!=)/gm)].map((match) => match[1]);
   return recipes.map((recipe) => makeCandidate(cwd, 'justfile', recipe, `just ${recipe}`, includeUnsafe));
 }
 
