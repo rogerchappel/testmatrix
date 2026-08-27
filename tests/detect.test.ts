@@ -45,6 +45,25 @@ test('detects mixed tool fixtures without running them', async () => {
   assert.ok(ids.includes('package.json:typecheck'));
 });
 
+test('detects just recipes with defaulted parameters', async () => {
+  const cwd = resolve('fixtures/just-parameters');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+
+  assert.equal(commands.length, 1);
+  assert.deepEqual(commands[0], {
+    id: 'justfile:test',
+    label: 'test',
+    command: 'just',
+    args: ['test'],
+    cwd,
+    source: 'justfile',
+    scriptName: 'test',
+    kind: 'test',
+    safety: 'safe',
+    reason: 'local verification command'
+  });
+});
+
 test('detects each ordinary multi-target and double-colon Make rule target', async () => {
   const cwd = resolve('fixtures/mixed-safe');
   const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
