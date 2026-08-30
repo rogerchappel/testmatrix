@@ -32,13 +32,15 @@ defaults do not become command arguments during detection, so a declaration
 such as `test filter="":` produces the safe candidate `just test`; callers can
 still invoke the recipe separately with an explicit parameter value.
 
-`[tool.testmatrix.scripts]` accepts single-line TOML basic strings. Arguments may
-be grouped with single or double quotes; use TOML escapes for quotes that belong
-inside a grouped argument. For example:
+`[tool.testmatrix.scripts]` accepts single-line TOML basic (double-quoted) and
+literal (single-quoted) strings. Arguments may be grouped with single or double
+quotes; use TOML escapes for quotes that belong inside a basic string. Literal
+strings preserve their contents unchanged. For example:
 
 ```toml
 [tool.testmatrix.scripts]
 quoted = "node -e \"console.log(\\\"hello world\\\")\""
+check:literal = 'node -e "console.log(\"literal command\")"'
 ```
 
 This runs `node` with the two arguments `-e` and `console.log("hello world")`.
