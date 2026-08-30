@@ -146,6 +146,22 @@ test('decodes, tokenizes, and safely runs quoted pyproject commands', async () =
   assert.equal(result.stdout, 'hello world\n');
 });
 
+test('detects, tokenizes, classifies, and safely runs literal pyproject commands', async () => {
+  const cwd = resolve('fixtures/quoted-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const literal = commands.find((command) => command.label === 'check:literal');
+
+  assert.ok(literal);
+  assert.equal(literal.command, 'node');
+  assert.deepEqual(literal.args, ['-e', 'console.log("literal command")']);
+  assert.equal(literal.kind, 'check');
+  assert.equal(literal.safety, 'safe');
+
+  const result = await runCommand(literal, 5_000, false);
+  assert.equal(result.status, 'passed');
+  assert.equal(result.stdout, 'literal command\n');
+});
+
 test('assesses safety against the full decoded pyproject command', async () => {
   const cwd = resolve('fixtures/quoted-safe');
   const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });

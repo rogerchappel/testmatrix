@@ -1,3 +1,4 @@
 [tool.testmatrix.scripts]
 quoted = "node -e \"console.log(\\\"hello world\\\")\""
+check:literal = 'node -e "console.log(\"literal command\")"'
 unsafe = "node -e \"console.log(\\\"npm publish\\\")\""
