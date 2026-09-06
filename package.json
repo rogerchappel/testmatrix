@@ -4,7 +4,7 @@
   "description": "Detect, classify, and run safe local verification commands with a result matrix.",
   "type": "module",
   "bin": {
-    "testmatrix": "./bin/testmatrix.js"
+    "testmatrix": "bin/testmatrix.js"
   },
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
