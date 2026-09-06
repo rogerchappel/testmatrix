@@ -2,6 +2,15 @@
 
 TestMatrix finds the verification commands hiding in a repo, filters out risky ones, runs the safe set, and leaves behind a compact result matrix. It is built for maintainers and coding agents who need the answer to one plain question: what passed locally?
 
+Install the published CLI:
+
+```bash
+npm install --global testmatrix
+testmatrix --cwd .
+```
+
+For repository development:
+
 ```bash
 npm install
 npm run build
@@ -106,6 +115,8 @@ bash scripts/validate.sh
 The smoke script builds the CLI and runs it against `fixtures/npm-safe`, writing `fixtures/npm-safe/.testmatrix/results.json`.
 `release:check` chains the local verification commands with the package dry-run
 so release-facing changes exercise both behavior and package contents.
+Version tags run the same checks, publish to npm with trusted-publishing
+provenance, and retain the packed tarball as a GitHub release asset.
 
 ## Matrix Shape
 

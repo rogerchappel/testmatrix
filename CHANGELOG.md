@@ -7,6 +7,11 @@ format and uses semantic versioning when versioned releases are published.
 
 ## [Unreleased]
 
+### Changed
+
+- Publish version tags to npm with provenance after release validation and
+  exercise the publish command in release dry runs.
+
 ### Added
 
 - Initial project setup.
