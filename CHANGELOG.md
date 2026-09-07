@@ -9,6 +9,8 @@ format and uses semantic versioning when versioned releases are published.
 
 ### Changed
 
+- Replace the unavailable npm installation guidance with a source install and
+  verify the packed CLI from a clean temporary consumer during release checks.
 - Publish version tags to npm with provenance after release validation and
   exercise the publish command in release dry runs.
 

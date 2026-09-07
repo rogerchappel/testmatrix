@@ -1,8 +1,14 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
-const run = (command, args) => {
-  const result = spawnSync(command, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const run = (command, args, options = {}) => {
+  const result = spawnSync(command, args, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    ...options
+  });
   if (result.status !== 0) {
     process.stderr.write(result.stderr || result.stdout);
     process.exit(result.status ?? 1);
@@ -55,3 +61,27 @@ if (missing.length > 0) {
 }
 
 console.log(`Package tarball includes ${expected.size} declared entrypoint(s).`);
+
+const consumer = mkdtempSync(join(tmpdir(), 'testmatrix-package-smoke-'));
+try {
+  writeFileSync(join(consumer, 'package.json'), '{"name":"testmatrix-package-smoke","private":true}\n');
+  const packedOutput = run('npm', ['pack', '--json', '--pack-destination', consumer]);
+  const [packed] = JSON.parse(packedOutput);
+  const tarball = join(consumer, packed.filename);
+
+  run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', tarball], { cwd: consumer });
+  const executable = join(consumer, 'node_modules', '.bin', 'testmatrix');
+  const version = run(executable, ['--version'], { cwd: consumer }).trim();
+  if (version !== pkg.version) {
+    console.error(`Installed CLI reported version ${version}; expected ${pkg.version}.`);
+    process.exit(1);
+  }
+  const help = run(executable, ['--help'], { cwd: consumer });
+  if (!help.startsWith('Usage: testmatrix')) {
+    console.error('Installed CLI did not return the expected help output.');
+    process.exit(1);
+  }
+  console.log(`Clean consumer installed testmatrix ${version} and ran its CLI.`);
+} finally {
+  rmSync(consumer, { recursive: true, force: true });
+}
