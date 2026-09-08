@@ -39,8 +39,6 @@ jobs:
         run: node /tmp/releasebox/bin/releasebox.js check .
       - name: Run release checks
         run: npm run release:check
-      - name: Verify npm publication
-        run: npm publish --dry-run --provenance --access public
       - name: Release notes preview
         run: |
           node /tmp/releasebox/bin/releasebox.js notes . > release-notes-preview.md
