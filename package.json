@@ -29,7 +29,8 @@
     "test": "npm run build && node --test dist/tests/*.test.js",
     "smoke": "npm run build && node ./bin/testmatrix.js --cwd fixtures/npm-safe --json --output .testmatrix/results.json",
     "package:smoke": "node scripts/package-smoke.mjs",
-    "release:check": "npm test && npm run check && npm run build && npm run smoke && npm run package:smoke"
+    "release:readiness": "node scripts/release-readiness.mjs",
+    "release:check": "npm test && npm run check && npm run build && npm run smoke && npm run package:smoke && npm run release:readiness"
   },
   "keywords": [
     "cli",
