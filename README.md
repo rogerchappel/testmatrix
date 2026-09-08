@@ -16,6 +16,9 @@ testmatrix --cwd .
 The `testmatrix` package currently present on npm is a security-holder package
 and does not provide this CLI. Published-package installation instructions will
 replace the source-install steps after the first project release is available.
+Automated npm publication is disabled while that package identity is
+unavailable. Version tags validate and pack the project, then create a GitHub
+release containing the tarball; they do not publish to npm.
 
 For repository development:
 
@@ -117,6 +120,7 @@ npm run check
 npm run build
 npm run smoke
 npm run package:smoke
+npm run release:readiness
 npm run release:check
 bash scripts/validate.sh
 ```
@@ -126,8 +130,10 @@ The package smoke test installs the generated tarball into a clean temporary
 consumer and verifies its `testmatrix --version` and `--help` commands.
 `release:check` chains the local verification commands with that clean-consumer
 check so release-facing changes exercise both behavior and package contents.
-Version tags run the same checks, publish to npm with trusted-publishing
-provenance, and retain the packed tarball as a GitHub release asset.
+The release-readiness check prevents a workflow from publishing the
+security-holder `testmatrix` identity. Version tags run the same checks and
+retain the packed tarball as a GitHub release asset. npm publication can be
+enabled only after the project adopts an available package identity.
 
 ## Matrix Shape
 

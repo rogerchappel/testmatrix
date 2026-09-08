@@ -11,8 +11,8 @@ format and uses semantic versioning when versioned releases are published.
 
 - Replace the unavailable npm installation guidance with a source install and
   verify the packed CLI from a clean temporary consumer during release checks.
-- Publish version tags to npm with provenance after release validation and
-  exercise the publish command in release dry runs.
+- Disable npm publication while the configured name belongs to a security-holder
+  package, and guard release checks against accidentally re-enabling it.
 
 ### Added
 
