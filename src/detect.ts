@@ -106,7 +106,7 @@ export async function detectMakefile(cwd: string, includeUnsafe = false): Promis
   const makefilePath = join(cwd, 'Makefile');
   if (!(await exists(makefilePath))) return [];
   const text = await readFile(makefilePath, 'utf8');
-  const targets = [...text.matchAll(/^([A-Za-z0-9_.-]+(?:[ \t]+[A-Za-z0-9_.-]+)*)::?(?:\s|$)/gm)]
+  const targets = [...text.matchAll(/^([A-Za-z0-9_.-]+(?:[ \t]+[A-Za-z0-9_.-]+)*)[ \t]*::?(?:\s|$)/gm)]
     .flatMap((match) => match[1].split(/[ \t]+/))
     .filter((target) => !target.startsWith('.'));
   return targets.map((target) => makeCandidate(cwd, 'Makefile', target, `make ${target}`, includeUnsafe));
