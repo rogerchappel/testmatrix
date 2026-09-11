@@ -14,6 +14,15 @@ format and uses semantic versioning when versioned releases are published.
 - Disable npm publication while the configured name belongs to a security-holder
   package, and guard release checks against accidentally re-enabling it.
 
+### Fixed
+
+- Make rules whose colon is preceded by spaces or tabs (for example
+  `lint2 : tools` or a tabbed `fullcheck :: extras`) are now detected under
+  each declared target name, matching GNU Make; prerequisites and dot-prefixed
+  special targets stay out of the matrix.
+- Detected commands no longer run with a forced `CI=1`. The caller's
+  environment is passed through unchanged so local runs report local reality.
+
 ### Added
 
 - Initial project setup.

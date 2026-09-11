@@ -45,7 +45,9 @@ with their parent script. Similar standalone names are still detected when no
 matching parent exists. Makefile metadata and special targets whose names begin
 with `.`, such as `.PHONY`, are not treated as runnable commands. Ordinary
 multi-target rules and double-colon rules are detected under each declared
-target name.
+target name. Whitespace may also separate the target list from the colon, as
+in GNU Make, so `lint2 : tools` and `fullcheck :: extras` are detected while
+the names after the colon stay prerequisites rather than runnable targets.
 
 Justfile recipes with parameters are detected by recipe name. Parameters with
 defaults do not become command arguments during detection, so a declaration
