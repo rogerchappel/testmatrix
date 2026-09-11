@@ -24,7 +24,7 @@ export async function runCommand(command: CandidateCommand, timeoutMs: number, d
   return new Promise((resolve) => {
     const child = spawn(command.command, command.args, {
       cwd: command.cwd,
-      env: { ...process.env, CI: process.env.CI ?? '1' },
+      env: { ...process.env },
       shell: false,
       detached: process.platform !== 'win32'
     });
