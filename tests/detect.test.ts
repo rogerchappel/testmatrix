@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -95,6 +96,24 @@ test('detects Make rules whose colon is preceded by horizontal whitespace', asyn
   assert.ok(!makeLabels.includes('tools'), 'prerequisites after the colon are not targets');
   assert.ok(!makeLabels.includes('extras'), 'prerequisites after a double colon are not targets');
   assert.deepEqual(makeLabels.filter((label) => label.startsWith('.')), [], 'special dot targets are never runnable');
+});
+
+test('cross-verifies every Make fixture rule with make -n', async (t) => {
+  const probe = spawnSync('make', ['--version'], { cwd: resolve('fixtures/mixed-safe') });
+  if (probe.error || probe.status !== 0) {
+    t.skip('make is unavailable in this environment');
+    return;
+  }
+
+  const cwd = resolve('fixtures/mixed-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const labels = commands.filter((command) => command.source === 'Makefile').map((command) => command.label);
+  assert.deepEqual(labels.sort(), ['alpha', 'beta', 'build', 'fullcheck', 'gamma', 'lint2', 'test']);
+
+  for (const label of labels) {
+    const result = spawnSync('make', ['-n', label], { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, `make -n ${label} failed: ${result.stderr}`);
+  }
 });
 
 test('omits npm lifecycle hooks that their parent script runs automatically', async () => {
