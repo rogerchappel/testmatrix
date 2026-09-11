@@ -9,3 +9,11 @@ alpha beta:
 
 gamma::
 	@node -e "console.log('make double-colon ok')"
+
+.PHONY: lint2 fullcheck
+
+lint2 : tools
+	@node -e "console.log('make spaced single-colon ok')"
+
+fullcheck	:: extras
+	@node -e "console.log('make tabbed double-colon ok')"

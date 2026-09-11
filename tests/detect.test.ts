@@ -40,6 +40,8 @@ test('detects mixed tool fixtures without running them', async () => {
   assert.ok(ids.includes('Makefile:alpha'));
   assert.ok(ids.includes('Makefile:beta'));
   assert.ok(ids.includes('Makefile:gamma'));
+  assert.ok(ids.includes('Makefile:lint2'));
+  assert.ok(ids.includes('Makefile:fullcheck'));
   assert.ok(ids.includes('justfile:smoke'));
   assert.ok(ids.includes('pyproject.toml:check'));
   assert.ok(ids.includes('package.json:typecheck'));
@@ -75,10 +77,24 @@ test('detects each ordinary multi-target and double-colon Make rule target', asy
       { id: 'Makefile:alpha', args: ['alpha'] },
       { id: 'Makefile:beta', args: ['beta'] },
       { id: 'Makefile:build', args: ['build'] },
+      { id: 'Makefile:fullcheck', args: ['fullcheck'] },
       { id: 'Makefile:gamma', args: ['gamma'] },
+      { id: 'Makefile:lint2', args: ['lint2'] },
       { id: 'Makefile:test', args: ['test'] }
     ]
   );
+});
+
+test('detects Make rules whose colon is preceded by horizontal whitespace', async () => {
+  const cwd = resolve('fixtures/mixed-safe');
+  const commands = await detectCommands({ cwd, includeUnsafe: false, onlyKinds: [] });
+  const makeLabels = commands.filter((command) => command.source === 'Makefile').map((command) => command.label);
+
+  assert.ok(makeLabels.includes('lint2'), 'space before a single colon must still declare a target');
+  assert.ok(makeLabels.includes('fullcheck'), 'whitespace before a double colon must still declare a target');
+  assert.ok(!makeLabels.includes('tools'), 'prerequisites after the colon are not targets');
+  assert.ok(!makeLabels.includes('extras'), 'prerequisites after a double colon are not targets');
+  assert.deepEqual(makeLabels.filter((label) => label.startsWith('.')), [], 'special dot targets are never runnable');
 });
 
 test('omits npm lifecycle hooks that their parent script runs automatically', async () => {
