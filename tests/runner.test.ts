@@ -30,6 +30,21 @@ test('runs a safe command', async () => {
   assert.match(result.stdout, /runner ok/);
 });
 
+test('passes the exact ambient environment to spawned commands', async () => {
+  const result = await runCommand(
+    command({ args: ['-e', 'process.stdout.write(JSON.stringify(process.env))'] }),
+    5000,
+    false
+  );
+
+  assert.equal(result.status, 'passed');
+  const childEnv = JSON.parse(result.stdout) as Record<string, string | undefined>;
+
+  assert.deepEqual(childEnv, { ...process.env });
+  assert.equal('CI' in childEnv, 'CI' in process.env);
+  assert.equal(childEnv.CI, process.env.CI);
+});
+
 test('skips blocked commands', async () => {
   const result = await runCommand(command({ safety: 'blocked', reason: 'blocked by safety policy' }), 5000, false);
 
